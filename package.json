@@ -1,6 +1,6 @@
 {
   "name": "ng-active-record",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "AngularJS Active Record Implementation",
   "main": "dist/active-record.js",
   "repository": "https://github.com/magloft/ng-active-record",
