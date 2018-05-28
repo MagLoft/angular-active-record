@@ -1,0 +1,20 @@
+{
+  "name": "ng-active-record",
+  "description": "AngularJS Active Record Implementation",
+  "main": "dist/active-record.js",
+  "authors": [
+    "MagLoft"
+  ],
+  "license": "MIT",
+  "homepage": "https://github.com/MagLoft/ng-active-record",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    ".babelrc",
+    ".eslintignore",
+    ".eslintrc.json",
+    "yarn.lock",
+    "webpack.config.js"
+  ]
+}
