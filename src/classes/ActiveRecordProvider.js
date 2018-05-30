@@ -1,4 +1,5 @@
 const changeCase = require("change-case")
+const objectPath = require("object-path")
 
 module.exports = function() {
   const config = {
@@ -10,7 +11,7 @@ module.exports = function() {
       return class ActiveRecord {
         constructor(properties) {
           if (properties) {
-            angular.extend(this, properties)
+            angular.merge(this, properties)
             this.$previousAttributes = this.$new ? {} : properties
           }
           if (this.initialize) {
@@ -18,9 +19,9 @@ module.exports = function() {
           }
         }
 
-        save(values, options = {}) {
-          if (values) {
-            angular.extend(this, values)
+        save(attributes, options = {}) {
+          if (attributes) {
+            angular.extend(this, attributes)
           }
           options.data = this.$changedAttributes
           if (this.$new) {
@@ -29,6 +30,17 @@ module.exports = function() {
             options.params = { id: this.id }
             this.$promise = this.$put(options)
           }
+          this.$promise.then(this.$syncResponse.bind(this))
+          return this
+        }
+
+        update(attributes = {}, options = {}) {
+          options.data = attributes
+          if (this.$new) {
+            throw new Error("Unable to update a new / non-persisted record")
+          }
+          options.params = { id: this.id }
+          this.$promise = this.$put(options)
           this.$promise.then(this.$syncResponse.bind(this))
           return this
         }
@@ -49,7 +61,7 @@ module.exports = function() {
             if (!angular.isObject(data)) {
               throw new Error("Not a valid response type")
             }
-            angular.extend(this, data)
+            angular.merge(this, data)
             this.$previousAttributes = data
             return this
           })
@@ -65,15 +77,14 @@ module.exports = function() {
           return values
         }
 
-        $changed(property) {
-          const changed = this.$changedAttributes
-          if (property) {
-            return property in changed
-          }
-          for (const i in changed) {
-            return true
-          }
-          return false
+        $changed(path) {
+          const oldValue = objectPath.get(this.$previousAttributes, path)
+          const newValue = objectPath.get(this, path)
+          return newValue !== oldValue
+        }
+
+        attribute(path) {
+          return objectPath.get(this, path)
         }
 
         get $changedAttributes() {
@@ -116,7 +127,7 @@ module.exports = function() {
           if (!angular.isObject(data)) {
             throw new Error("Not a valid response type")
           }
-          angular.extend(this, data)
+          angular.merge(this, data)
           this.$previousAttributes = data
           return this
         }
