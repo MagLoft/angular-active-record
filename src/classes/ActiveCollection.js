@@ -3,7 +3,11 @@ module.exports = function($q) {
     $get(RecordClass, options = {}) {
       this.RecordClass = RecordClass
       this.$promise = this.RecordClass.request("GET", options).then((response) => {
-        const records = response.data.map(item => new this.RecordClass(angular.extend(item, { $collection: this })))
+        const records = response.data.map((item) => {
+          const record = new RecordClass(item)
+          record.$collection = this
+          return record
+        })
         this.push(...records)
         return $q.resolve(this)
       })
