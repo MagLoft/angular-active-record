@@ -9,14 +9,23 @@ module.exports = function() {
     config,
     $get($http, $q, ActiveCollection) {
       return class ActiveRecord {
-        constructor(properties) {
-          if (properties) {
-            angular.merge(this, properties)
-            this.$previousAttributes = this.$new ? {} : properties
+        constructor(attributes) {
+          this.initialize(attributes)
+        }
+
+        initialize(attributes) {
+          if (attributes) {
+            if (!angular.isObject(attributes)) {
+              throw new Error("Not a valid response type")
+            }
+            angular.merge(this, attributes)
+            this.$previousAttributes = this.$new ? {} : attributes
           }
-          if (this.initialize) {
-            this.initialize()
-          }
+        }
+
+        $syncResponse({ attributes }) {
+          this.initialize(attributes)
+          return this
         }
 
         save(attributes, options = {}) {
@@ -57,12 +66,8 @@ module.exports = function() {
         reload(options = {}) {
           angular.extend(options, { params: { id: this.id } })
           return this.$get(options).then((response) => {
-            const data = response.data
-            if (!angular.isObject(data)) {
-              throw new Error("Not a valid response type")
-            }
-            angular.merge(this, data)
-            this.$previousAttributes = data
+            const attributes = response.data
+            this.initialize(attributes)
             return this
           })
         }
@@ -121,15 +126,6 @@ module.exports = function() {
 
         $delete(options) {
           return this.constructor.request("DELETE", options)
-        }
-
-        $syncResponse({ data }) {
-          if (!angular.isObject(data)) {
-            throw new Error("Not a valid response type")
-          }
-          angular.merge(this, data)
-          this.$previousAttributes = data
-          return this
         }
 
         static get attributes() {
