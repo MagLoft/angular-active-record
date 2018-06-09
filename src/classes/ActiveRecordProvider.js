@@ -23,8 +23,8 @@ module.exports = function() {
           }
         }
 
-        $syncResponse({ attributes }) {
-          this.initialize(attributes)
+        $syncResponse(response) {
+          this.initialize(response.data)
           return this
         }
 
