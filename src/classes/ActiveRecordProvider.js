@@ -85,7 +85,7 @@ module.exports = function() {
         $changed(path) {
           const oldValue = objectPath.get(this.$previousAttributes, path)
           const newValue = objectPath.get(this, path)
-          return newValue !== oldValue
+          return !angular.equals(newValue, oldValue)
         }
 
         attribute(path) {
