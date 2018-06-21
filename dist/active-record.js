@@ -347,16 +347,16 @@ module.exports = function($q) {
       return record
     }
 
-    create(arg, options={}, insertAtFront=false) {
+    create(arg, options = {}, insertAtFront = false) {
       const opts = angular.copy(options)
       const record = (arg instanceof this.RecordClass) ? arg : new this.RecordClass(arg)
       record.$collection = this
       if (insertAtFront) {
         this.unshift(record)
-      } else {
+      }else {
         this.push(record)
       }
-      
+
       opts.params = opts.params || {}
       if (this.paramsTransformer && this.parentRecord) {
         this.paramsTransformer.call(this.parentRecord, opts.params)
@@ -376,7 +376,7 @@ module.exports = function($q) {
       }
     }
 
-    reload(options={}) {
+    reload(options = {}) {
       const opts = angular.copy(options)
       opts.params = opts.params || {}
       if (this.paramsTransformer && this.parentRecord) {
@@ -1150,6 +1150,11 @@ module.exports = function() {
         static all(options = {}) {
           const collection = new ActiveCollection()
           return collection.$get(this, options)
+        }
+
+        static where(params = {}, options = {}) {
+          const collection = new ActiveCollection()
+          return collection.$get(this, angular.extend({}, options, { params }))
         }
 
         static recordName() {
