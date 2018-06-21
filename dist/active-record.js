@@ -1112,9 +1112,10 @@ module.exports = function() {
         }
 
         static request(method, options = {}) {
-          const url = options.url || this.generateUrl(options)
-          angular.extend(options, { method, url })
-          return $http(options)
+          const opts = angular.copy(options)
+          const url = opts.url || this.generateUrl(opts)
+          angular.extend(opts, { method, url })
+          return $http(opts)
         }
 
         static find(id, options) {
