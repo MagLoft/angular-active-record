@@ -3,9 +3,13 @@ module.exports = function($q) {
     $get(RecordClass, options = {}) {
       this.RecordClass = RecordClass
       this.$promise = this.RecordClass.request("GET", options).then((response) => {
+        this.length = 0
         const records = response.data.map((item) => {
           const record = new RecordClass(item)
           record.$collection = this
+          if (this.parentRecord) {
+            record.$parent = this.parentRecord
+          }
           return record
         })
         this.push(...records)
@@ -36,11 +40,21 @@ module.exports = function($q) {
       return record
     }
 
-    create(arg, options) {
+    create(arg, options = {}, insertAtFront = false) {
+      const opts = angular.copy(options)
       const record = (arg instanceof this.RecordClass) ? arg : new this.RecordClass(arg)
       record.$collection = this
-      this.push(record)
-      return record.save({}, options)
+      if (insertAtFront) {
+        this.unshift(record)
+      }else {
+        this.push(record)
+      }
+
+      opts.params = opts.params || {}
+      if (this.paramsTransformer && this.parentRecord) {
+        this.paramsTransformer.call(this.parentRecord, opts.params)
+      }
+      return record.save({}, opts)
     }
 
     destroy(record, options) {
@@ -53,6 +67,15 @@ module.exports = function($q) {
       if (index !== -1) {
         this.splice(index, 1)
       }
+    }
+
+    reload(options = {}) {
+      const opts = angular.copy(options)
+      opts.params = opts.params || {}
+      if (this.paramsTransformer && this.parentRecord) {
+        this.paramsTransformer.call(this.parentRecord, opts.params)
+      }
+      return this.$get(this.RecordClass, opts).$promise
     }
   }
 }

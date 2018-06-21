@@ -64,7 +64,7 @@ module.exports = function() {
         }
 
         reload(options = {}) {
-          angular.extend(options, { params: { id: this.id } })
+          options.params = angular.extend({}, options.params, { id: this.id })
           return this.$get(options).then((response) => {
             const attributes = response.data
             this.initialize(attributes)
@@ -181,6 +181,8 @@ module.exports = function() {
               paramsTransformer.call(this, params)
             }
             const records = ModelType.all({ params })
+            records.paramsTransformer = paramsTransformer
+            records.parentRecord = parentRecord
             records.$promise.then(() => {
               for (const record of records) {
                 record[`${recordName}`] = parentRecord
