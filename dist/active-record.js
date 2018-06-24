@@ -1152,6 +1152,11 @@ module.exports = function() {
           return collection.$get(this, options)
         }
 
+        static create(params = {}, options = {}) {
+          const record = new this(angular.copy(params))
+          return record.save({}, angular.copy(options))
+        }
+
         static where(params = {}, options = {}) {
           const collection = new ActiveCollection()
           return collection.$get(this, angular.extend({}, options, { params }))
