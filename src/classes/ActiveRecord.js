@@ -1,7 +1,7 @@
 const changeCase = require("change-case")
 const objectPath = require("object-path")
 
-module.exports = function() {
+angular.module("active-record").provider("ActiveRecord", () => {
   const config = {
     baseUrl: "/"
   }
@@ -205,4 +205,4 @@ module.exports = function() {
       }
     }
   }
-}
+})

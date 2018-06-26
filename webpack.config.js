@@ -1,20 +1,27 @@
-const path = require('path')
-const UglifyJsPlugin = require('uglifyjs-webpack-plugin')
+const path = require("path")
+const UglifyJsPlugin = require("uglifyjs-webpack-plugin")
 
 module.exports = {
-  mode: 'production',
+  mode: "production",
   entry: {
-    'active-record': `./src/active-record.js`,
-    'active-record.min': `./src/active-record.js`
+    "active-record": `./src/active-record.js`,
+    "active-record.min": `./src/active-record.js`
   },
-  devtool: "source-map",
+  devtool: false,
   output: {
-    path: path.resolve(__dirname, 'dist'),
+    path: path.resolve(__dirname, "dist"),
     filename: "[name].js"
   },
   module: {
     rules: [
-      { test: /src.*\.js$/, use: [{ loader: "ng-annotate-loader" }] }
+      { test: /src.*\.js$/, use: [{
+        loader: "babel-loader",
+        options: {
+          plugins: [
+            ["babel-plugin-transform-builtin-extend", { globals: ["Array"] }]
+          ]
+        }
+      }, { loader: "ng-annotate-loader" }] }
     ]
   },
   optimization: {

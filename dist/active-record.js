@@ -303,90 +303,188 @@ module.exports = function (value, locale, mergeNumbers) {
 
 /***/ }),
 /* 6 */
-/***/ (function(module, exports) {
+/***/ (function(module, exports, __webpack_require__) {
 
-module.exports = function($q) {
-  return class ActiveCollection extends Array {
-    $get(RecordClass, options = {}) {
-      this.RecordClass = RecordClass
-      this.$promise = this.RecordClass.request("GET", options).then((response) => {
-        this.length = 0
-        const records = response.data.map((item) => {
-          const record = new RecordClass(item)
-          record.$collection = this
-          if (this.parentRecord) {
-            record.$parent = this.parentRecord
-          }
-          return record
-        })
-        this.push(...records)
-        return $q.resolve(this)
-      })
-      return this
-    }
+"use strict";
 
-    findById(id) {
-      const record = this.find(r => r.id === id) || new this.RecordClass()
-      record.$promise = record.id ? $q.resolve(record) : $q.reject(`${this.RecordClass.name} not found`)
-      return record
-    }
 
-    findBy(values) {
-      const record = this.find((r) => {
-        for (const [key, value]of Object.entries(values)) {
-          if (r[key] !== value) {
-            return false
-          }
-        }
-        return true
-      })
-      if (!record) {
-        return $q.reject("Record not found")
-      }
-      record.$promise = $q.resolve(record)
-      return record
-    }
+var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
 
-    create(arg, options = {}, insertAtFront = false) {
-      const opts = angular.copy(options)
-      const record = (arg instanceof this.RecordClass) ? arg : new this.RecordClass(arg)
-      record.$collection = this
-      if (insertAtFront) {
-        this.unshift(record)
-      }else {
-        this.push(record)
-      }
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-      opts.params = opts.params || {}
-      if (this.paramsTransformer && this.parentRecord) {
-        this.paramsTransformer.call(this.parentRecord, opts.params)
-      }
-      return record.save({}, opts)
-    }
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 
-    destroy(record, options) {
-      this.remove(record)
-      return record.destroy(options)
-    }
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-    remove(record) {
-      const index = this.findIndex(item => record.id === item.id)
-      if (index !== -1) {
-        this.splice(index, 1)
-      }
-    }
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
 
-    reload(options = {}) {
-      const opts = angular.copy(options)
-      opts.params = opts.params || {}
-      if (this.paramsTransformer && this.parentRecord) {
-        this.paramsTransformer.call(this.parentRecord, opts.params)
-      }
-      return this.$get(this.RecordClass, opts).$promise
-    }
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+function _extendableBuiltin(cls) {
+  function ExtendableBuiltin() {
+    var instance = Reflect.construct(cls, Array.from(arguments));
+    Object.setPrototypeOf(instance, Object.getPrototypeOf(this));
+    return instance;
   }
+
+  ExtendableBuiltin.prototype = Object.create(cls.prototype, {
+    constructor: {
+      value: cls,
+      enumerable: false,
+      writable: true,
+      configurable: true
+    }
+  });
+
+  if (Object.setPrototypeOf) {
+    Object.setPrototypeOf(ExtendableBuiltin, cls);
+  } else {
+    ExtendableBuiltin.__proto__ = cls;
+  }
+
+  return ExtendableBuiltin;
 }
 
+angular.module("active-record").factory("ActiveCollection", function ($q) {
+  return function (_extendableBuiltin2) {
+    _inherits(ActiveCollection, _extendableBuiltin2);
+
+    function ActiveCollection() {
+      _classCallCheck(this, ActiveCollection);
+
+      return _possibleConstructorReturn(this, (ActiveCollection.__proto__ || Object.getPrototypeOf(ActiveCollection)).apply(this, arguments));
+    }
+
+    _createClass(ActiveCollection, [{
+      key: "$get",
+      value: function $get(RecordClass) {
+        var _this2 = this;
+
+        var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+
+        this.RecordClass = RecordClass;
+        this.$promise = this.RecordClass.request("GET", options).then(function (response) {
+          _this2.length = 0;
+          var records = response.data.map(function (item) {
+            var record = new RecordClass(item);
+            record.$collection = _this2;
+            if (_this2.parentRecord) {
+              record.$parent = _this2.parentRecord;
+            }
+            return record;
+          });
+          _this2.push.apply(_this2, _toConsumableArray(records));
+          return $q.resolve(_this2);
+        });
+        return this;
+      }
+    }, {
+      key: "findById",
+      value: function findById(id) {
+        var record = this.find(function (r) {
+          return r.id === id;
+        }) || new this.RecordClass();
+        record.$promise = record.id ? $q.resolve(record) : $q.reject(this.RecordClass.name + " not found");
+        return record;
+      }
+    }, {
+      key: "findBy",
+      value: function findBy(values) {
+        var record = this.find(function (r) {
+          var _iteratorNormalCompletion = true;
+          var _didIteratorError = false;
+          var _iteratorError = undefined;
+
+          try {
+            for (var _iterator = Object.entries(values)[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+              var _ref = _step.value;
+
+              var _ref2 = _slicedToArray(_ref, 2);
+
+              var key = _ref2[0];
+              var value = _ref2[1];
+
+              if (r[key] !== value) {
+                return false;
+              }
+            }
+          } catch (err) {
+            _didIteratorError = true;
+            _iteratorError = err;
+          } finally {
+            try {
+              if (!_iteratorNormalCompletion && _iterator.return) {
+                _iterator.return();
+              }
+            } finally {
+              if (_didIteratorError) {
+                throw _iteratorError;
+              }
+            }
+          }
+
+          return true;
+        });
+        if (!record) {
+          return $q.reject("Record not found");
+        }
+        record.$promise = $q.resolve(record);
+        return record;
+      }
+    }, {
+      key: "create",
+      value: function create(arg) {
+        var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+        var insertAtFront = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
+
+        var opts = angular.copy(options);
+        var record = arg instanceof this.RecordClass ? arg : new this.RecordClass(arg);
+        record.$collection = this;
+        if (insertAtFront) {
+          this.unshift(record);
+        } else {
+          this.push(record);
+        }
+
+        opts.params = opts.params || {};
+        if (this.paramsTransformer && this.parentRecord) {
+          this.paramsTransformer.call(this.parentRecord, opts.params);
+        }
+        return record.save({}, opts);
+      }
+    }, {
+      key: "destroy",
+      value: function destroy(record, options) {
+        this.remove(record);
+        return record.destroy(options);
+      }
+    }, {
+      key: "remove",
+      value: function remove(record) {
+        var index = this.findIndex(function (item) {
+          return record.id === item.id;
+        });
+        if (index !== -1) {
+          this.splice(index, 1);
+        }
+      }
+    }, {
+      key: "reload",
+      value: function reload() {
+        var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+
+        var opts = angular.copy(options);
+        opts.params = opts.params || {};
+        if (this.paramsTransformer && this.parentRecord) {
+          this.paramsTransformer.call(this.parentRecord, opts.params);
+        }
+        return this.$get(this.RecordClass, opts).$promise;
+      }
+    }]);
+
+    return ActiveCollection;
+  }(_extendableBuiltin(Array));
+});
 
 /***/ }),
 /* 7 */
@@ -981,228 +1079,349 @@ exports.lcFirst = exports.lowerCaseFirst = __webpack_require__(8)
 /* 24 */
 /***/ (function(module, exports, __webpack_require__) {
 
-const changeCase = __webpack_require__(23)
-const objectPath = __webpack_require__(7)
+"use strict";
 
-module.exports = function() {
-  const config = {
+
+var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var changeCase = __webpack_require__(23);
+var objectPath = __webpack_require__(7);
+
+angular.module("active-record").provider("ActiveRecord", function () {
+  var config = {
     baseUrl: "/"
-  }
+  };
   return {
-    config,
-    $get($http, $q, ActiveCollection) {
-      return class ActiveRecord {
-        constructor(attributes) {
-          this.initialize(attributes)
+    config: config,
+    $get: function $get($http, $q, ActiveCollection) {
+      return function () {
+        function ActiveRecord(attributes) {
+          _classCallCheck(this, ActiveRecord);
+
+          this.initialize(attributes);
         }
 
-        initialize(attributes) {
-          if (attributes) {
-            if (!angular.isObject(attributes)) {
-              throw new Error("Not a valid response type")
-            }
-            angular.merge(this, attributes)
-            this.$previousAttributes = this.$new ? {} : attributes
-          }
-        }
-
-        $syncResponse(response) {
-          this.initialize(response.data)
-          return this
-        }
-
-        save(attributes, options = {}) {
-          if (attributes) {
-            angular.extend(this, attributes)
-          }
-          options.data = this.$changedAttributes
-          if (this.$new) {
-            this.$promise = this.$post(options)
-          }else {
-            options.params = { id: this.id }
-            this.$promise = this.$put(options)
-          }
-          this.$promise.then(this.$syncResponse.bind(this))
-          return this
-        }
-
-        update(attributes = {}, options = {}) {
-          options.data = attributes
-          if (this.$new) {
-            throw new Error("Unable to update a new / non-persisted record")
-          }
-          options.params = { id: this.id }
-          this.$promise = this.$put(options)
-          this.$promise.then(this.$syncResponse.bind(this))
-          return this
-        }
-
-        destroy(options = {}) {
-          if (this.$collection) {
-            this.$collection.remove(this)
-          }
-          options.params = { id: this.id }
-          this.$promise = this.$new ? $q.resolve(this) : this.$delete(options).then(() => this)
-          return this
-        }
-
-        reload(options = {}) {
-          options.params = angular.extend({}, options.params, { id: this.id })
-          return this.$get(options).then((response) => {
-            const attributes = response.data
-            this.initialize(attributes)
-            return this
-          })
-        }
-
-        get $attributes() {
-          const values = {}
-          for (const field of this.constructor.attributes) {
-            if (angular.isDefined(this[field])) {
-              values[field] = this[field]
-            }
-          }
-          return values
-        }
-
-        $changed(path) {
-          const oldValue = objectPath.get(this.$previousAttributes, path)
-          const newValue = objectPath.get(this, path)
-          return !angular.equals(newValue, oldValue)
-        }
-
-        attribute(path) {
-          return objectPath.get(this, path)
-        }
-
-        get $changedAttributes() {
-          const changed = {}
-          const attributes = this.$attributes
-          Object.entries(this.$previousAttributes).forEach(([property, value]) => {
-            if (angular.isUndefined(value)) {
-              changed[property] = value
-            }
-          })
-          Object.entries(attributes).forEach(([property, value]) => {
-            if (angular.equals(value, this.$previousAttributes[property]) === false) {
-              changed[property] = value
-            }
-          })
-          return changed
-        }
-
-        get $new() {
-          return this.id == null
-        }
-
-        $get(options) {
-          return this.constructor.request("GET", options)
-        }
-
-        $post(options) {
-          return this.constructor.request("POST", options)
-        }
-
-        $put(options) {
-          return this.constructor.request("PUT", options)
-        }
-
-        $delete(options) {
-          return this.constructor.request("DELETE", options)
-        }
-
-        static get attributes() {
-          return []
-        }
-
-        static get path() {
-          return ""
-        }
-
-        static get params() {
-          return {}
-        }
-
-        static generateUrl(options = {}) {
-          const path = options.path || this.path
-          const params = angular.extend({}, this.params, options.params)
-          return `${config.baseUrl}/${path}`.replace(/:([^:/]+)/g, (match, property) => {
-            if (options.params && options.params[property]) {
-              delete options.params[property]
-            }
-            return params[property] || ""
-          })
-        }
-
-        static request(method, options = {}) {
-          const opts = angular.copy(options)
-          const url = opts.url || this.generateUrl(opts)
-          angular.extend(opts, { method, url })
-          return $http(opts)
-        }
-
-        static find(id, options) {
-          const model = new this({ id })
-          model.$promise = model.reload(options)
-          return model
-        }
-
-        static all(options = {}) {
-          const collection = new ActiveCollection()
-          return collection.$get(this, options)
-        }
-
-        static create(params = {}, options = {}) {
-          const record = new this(angular.copy(params))
-          return record.save({}, angular.copy(options))
-        }
-
-        static where(params = {}, options = {}) {
-          const collection = new ActiveCollection()
-          return collection.$get(this, angular.extend({}, options, { params }))
-        }
-
-        static recordName() {
-          return changeCase.snakeCase(this.name)
-        }
-
-        static hasMany(method, ModelType, paramsTransformer) {
-          const recordName = this.recordName()
-          this.prototype[`${method}`] = function(params = {}) {
-            const parentRecord = this
-            if (angular.isFunction(paramsTransformer)) {
-              paramsTransformer.call(this, params)
-            }
-            const records = ModelType.all({ params })
-            records.paramsTransformer = paramsTransformer
-            records.parentRecord = parentRecord
-            records.$promise.then(() => {
-              for (const record of records) {
-                record[`${recordName}`] = parentRecord
+        _createClass(ActiveRecord, [{
+          key: "initialize",
+          value: function initialize(attributes) {
+            if (attributes) {
+              if (!angular.isObject(attributes)) {
+                throw new Error("Not a valid response type");
               }
-              return records
-            })
-            return records
+              angular.merge(this, attributes);
+              this.$previousAttributes = this.$new ? {} : attributes;
+            }
           }
-        }
-      }
-    }
-  }
-}
+        }, {
+          key: "$syncResponse",
+          value: function $syncResponse(response) {
+            this.initialize(response.data);
+            return this;
+          }
+        }, {
+          key: "save",
+          value: function save(attributes) {
+            var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
+            if (attributes) {
+              angular.extend(this, attributes);
+            }
+            options.data = this.$changedAttributes;
+            if (this.$new) {
+              this.$promise = this.$post(options);
+            } else {
+              options.params = { id: this.id };
+              this.$promise = this.$put(options);
+            }
+            this.$promise.then(this.$syncResponse.bind(this));
+            return this;
+          }
+        }, {
+          key: "update",
+          value: function update() {
+            var attributes = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+            var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+
+            options.data = attributes;
+            if (this.$new) {
+              throw new Error("Unable to update a new / non-persisted record");
+            }
+            options.params = { id: this.id };
+            this.$promise = this.$put(options);
+            this.$promise.then(this.$syncResponse.bind(this));
+            return this;
+          }
+        }, {
+          key: "destroy",
+          value: function destroy() {
+            var _this = this;
+
+            var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+
+            if (this.$collection) {
+              this.$collection.remove(this);
+            }
+            options.params = { id: this.id };
+            this.$promise = this.$new ? $q.resolve(this) : this.$delete(options).then(function () {
+              return _this;
+            });
+            return this;
+          }
+        }, {
+          key: "reload",
+          value: function reload() {
+            var _this2 = this;
+
+            var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+
+            options.params = angular.extend({}, options.params, { id: this.id });
+            return this.$get(options).then(function (response) {
+              var attributes = response.data;
+              _this2.initialize(attributes);
+              return _this2;
+            });
+          }
+        }, {
+          key: "$changed",
+          value: function $changed(path) {
+            var oldValue = objectPath.get(this.$previousAttributes, path);
+            var newValue = objectPath.get(this, path);
+            return !angular.equals(newValue, oldValue);
+          }
+        }, {
+          key: "attribute",
+          value: function attribute(path) {
+            return objectPath.get(this, path);
+          }
+        }, {
+          key: "$get",
+          value: function $get(options) {
+            return this.constructor.request("GET", options);
+          }
+        }, {
+          key: "$post",
+          value: function $post(options) {
+            return this.constructor.request("POST", options);
+          }
+        }, {
+          key: "$put",
+          value: function $put(options) {
+            return this.constructor.request("PUT", options);
+          }
+        }, {
+          key: "$delete",
+          value: function $delete(options) {
+            return this.constructor.request("DELETE", options);
+          }
+        }, {
+          key: "$attributes",
+          get: function get() {
+            var values = {};
+            var _iteratorNormalCompletion = true;
+            var _didIteratorError = false;
+            var _iteratorError = undefined;
+
+            try {
+              for (var _iterator = this.constructor.attributes[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+                var field = _step.value;
+
+                if (angular.isDefined(this[field])) {
+                  values[field] = this[field];
+                }
+              }
+            } catch (err) {
+              _didIteratorError = true;
+              _iteratorError = err;
+            } finally {
+              try {
+                if (!_iteratorNormalCompletion && _iterator.return) {
+                  _iterator.return();
+                }
+              } finally {
+                if (_didIteratorError) {
+                  throw _iteratorError;
+                }
+              }
+            }
+
+            return values;
+          }
+        }, {
+          key: "$changedAttributes",
+          get: function get() {
+            var _this3 = this;
+
+            var changed = {};
+            var attributes = this.$attributes;
+            Object.entries(this.$previousAttributes).forEach(function (_ref) {
+              var _ref2 = _slicedToArray(_ref, 2),
+                  property = _ref2[0],
+                  value = _ref2[1];
+
+              if (angular.isUndefined(value)) {
+                changed[property] = value;
+              }
+            });
+            Object.entries(attributes).forEach(function (_ref3) {
+              var _ref4 = _slicedToArray(_ref3, 2),
+                  property = _ref4[0],
+                  value = _ref4[1];
+
+              if (angular.equals(value, _this3.$previousAttributes[property]) === false) {
+                changed[property] = value;
+              }
+            });
+            return changed;
+          }
+        }, {
+          key: "$new",
+          get: function get() {
+            return this.id == null;
+          }
+        }], [{
+          key: "generateUrl",
+          value: function generateUrl() {
+            var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+
+            var path = options.path || this.path;
+            var params = angular.extend({}, this.params, options.params);
+            return (config.baseUrl + "/" + path).replace(/:([^:/]+)/g, function (match, property) {
+              if (options.params && options.params[property]) {
+                delete options.params[property];
+              }
+              return params[property] || "";
+            });
+          }
+        }, {
+          key: "request",
+          value: function request(method) {
+            var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+
+            var opts = angular.copy(options);
+            var url = opts.url || this.generateUrl(opts);
+            angular.extend(opts, { method: method, url: url });
+            return $http(opts);
+          }
+        }, {
+          key: "find",
+          value: function find(id, options) {
+            var model = new this({ id: id });
+            model.$promise = model.reload(options);
+            return model;
+          }
+        }, {
+          key: "all",
+          value: function all() {
+            var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+
+            var collection = new ActiveCollection();
+            return collection.$get(this, options);
+          }
+        }, {
+          key: "create",
+          value: function create() {
+            var params = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+            var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+
+            var record = new this(angular.copy(params));
+            return record.save({}, angular.copy(options));
+          }
+        }, {
+          key: "where",
+          value: function where() {
+            var params = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+            var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+
+            var collection = new ActiveCollection();
+            return collection.$get(this, angular.extend({}, options, { params: params }));
+          }
+        }, {
+          key: "recordName",
+          value: function recordName() {
+            return changeCase.snakeCase(this.name);
+          }
+        }, {
+          key: "hasMany",
+          value: function hasMany(method, ModelType, paramsTransformer) {
+            var recordName = this.recordName();
+            this.prototype["" + method] = function () {
+              var params = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+
+              var parentRecord = this;
+              if (angular.isFunction(paramsTransformer)) {
+                paramsTransformer.call(this, params);
+              }
+              var records = ModelType.all({ params: params });
+              records.paramsTransformer = paramsTransformer;
+              records.parentRecord = parentRecord;
+              records.$promise.then(function () {
+                var _iteratorNormalCompletion2 = true;
+                var _didIteratorError2 = false;
+                var _iteratorError2 = undefined;
+
+                try {
+                  for (var _iterator2 = records[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+                    var record = _step2.value;
+
+                    record["" + recordName] = parentRecord;
+                  }
+                } catch (err) {
+                  _didIteratorError2 = true;
+                  _iteratorError2 = err;
+                } finally {
+                  try {
+                    if (!_iteratorNormalCompletion2 && _iterator2.return) {
+                      _iterator2.return();
+                    }
+                  } finally {
+                    if (_didIteratorError2) {
+                      throw _iteratorError2;
+                    }
+                  }
+                }
+
+                return records;
+              });
+              return records;
+            };
+          }
+        }, {
+          key: "attributes",
+          get: function get() {
+            return [];
+          }
+        }, {
+          key: "path",
+          get: function get() {
+            return "";
+          }
+        }, {
+          key: "params",
+          get: function get() {
+            return {};
+          }
+        }]);
+
+        return ActiveRecord;
+      }();
+    }
+  };
+});
 
 /***/ }),
 /* 25 */
 /***/ (function(module, exports, __webpack_require__) {
 
-const ActiveRecordProvider = __webpack_require__(24)
-const ActiveCollection = __webpack_require__(6)
+"use strict";
 
-angular.module("active-record", [])
-.provider("ActiveRecord", ActiveRecordProvider)
-.factory("ActiveCollection", ActiveCollection)
 
+angular.module("active-record", []);
+__webpack_require__(24);
+__webpack_require__(6);
 
 /***/ })
 /******/ ]);
-//# sourceMappingURL=active-record.js.map
