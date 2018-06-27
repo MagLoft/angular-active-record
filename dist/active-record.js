@@ -1114,6 +1114,8 @@ angular.module("active-record").provider("ActiveRecord", function () {
               }
               angular.merge(this, attributes);
               this.$previousAttributes = this.$new ? {} : attributes;
+            } else {
+              this.$previousAttributes = {};
             }
           }
         }, {

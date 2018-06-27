@@ -20,6 +20,8 @@ angular.module("active-record").provider("ActiveRecord", () => {
             }
             angular.merge(this, attributes)
             this.$previousAttributes = this.$new ? {} : attributes
+          }else {
+            this.$previousAttributes = {}
           }
         }
 
