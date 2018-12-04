@@ -380,11 +380,14 @@ angular.module("active-record").factory("ActiveCollection", function ($q) {
       }
     }, {
       key: "findById",
-      value: function findById(id) {
+      value: function findById(id, options) {
         var record = this.find(function (r) {
           return r.id === id;
         }) || new this.RecordClass();
-        record.$promise = record.id ? $q.resolve(record) : $q.reject(this.RecordClass.name + " not found");
+        if (!record.id) {
+          return this.RecordClass.find(id, options);
+        }
+        record.$promise = $q.resolve(record);
         return record;
       }
     }, {

@@ -17,9 +17,12 @@ angular.module("active-record").factory("ActiveCollection", $q => class ActiveCo
     return this
   }
 
-  findById(id) {
+  findById(id, options) {
     const record = this.find(r => r.id === id) || new this.RecordClass()
-    record.$promise = record.id ? $q.resolve(record) : $q.reject(`${this.RecordClass.name} not found`)
+    if (!record.id) {
+      return this.RecordClass.find(id, options)
+    }
+    record.$promise = $q.resolve(record)
     return record
   }
 
