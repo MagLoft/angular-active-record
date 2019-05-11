@@ -38,7 +38,7 @@ angular.module("active-record").provider("ActiveRecord", () => {
           if (this.$new) {
             this.$promise = this.$post(options)
           }else {
-            options.params = { id: this.id }
+            options.params = angular.extend({}, options.params, { id: this.id })
             this.$promise = this.$put(options)
           }
           this.$promise.then(this.$syncResponse.bind(this))
@@ -50,7 +50,7 @@ angular.module("active-record").provider("ActiveRecord", () => {
           if (this.$new) {
             throw new Error("Unable to update a new / non-persisted record")
           }
-          options.params = { id: this.id }
+          options.params = angular.extend({}, options.params, { id: this.id })
           this.$promise = this.$put(options)
           this.$promise.then(this.$syncResponse.bind(this))
           return this
@@ -60,7 +60,7 @@ angular.module("active-record").provider("ActiveRecord", () => {
           if (this.$collection) {
             this.$collection.remove(this)
           }
-          options.params = { id: this.id }
+          options.params = angular.extend({}, options.params, { id: this.id })
           this.$promise = this.$new ? $q.resolve(this) : this.$delete(options).then(() => this)
           return this
         }
