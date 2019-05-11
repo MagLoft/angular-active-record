@@ -9,7 +9,6 @@ An [AngularJS](https://angularjs.org/) ActiveRecord-like resource implementation
 ## Development
 
 * Run `yarn` to install all dependencies
-* Run `gulp` to package the library into the `dist/` folder
 
 ## License
 
