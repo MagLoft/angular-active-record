@@ -1,5 +1,2 @@
 node_modules/*
-dist/medialib.js
-dist/plugins/*.js
-src/medialib/classes/Icons.js
-gulpfile.babel.js
+dist/*

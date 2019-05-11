@@ -25,8 +25,9 @@
     "webpack-cli": "^3.1.0"
   },
   "scripts": {
-    "dist": "webpack",
-    "lint": "eslint"
+    "dev": "webpack --config webpack.config.js -d --watch",
+    "prepack": "webpack --config webpack.config.js --mode=production",
+    "postpack": "rm dist/*.js"
   },
   "dependencies": {
     "angular": "^1.6.9",
